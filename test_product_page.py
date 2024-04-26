@@ -1,6 +1,8 @@
 import pytest
 from pages.product_page import ProductPage
 from pages.locators import ProductPageLocators
+import time
+from pages.login_page import LoginPage
 
 
 @pytest.mark.parametrize(
@@ -32,6 +34,7 @@ def test_guest_can_add_product_to_basket(browser, link):
 
 # Ниже описаны отрицательные проверки.
 
+
 def test_guest_cant_see_success_message_after_adding_product_to_basket(browser):
     link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=newYear2019"
     page = ProductPage(browser, link)
@@ -61,3 +64,35 @@ def test_message_disappeared_after_adding_product_to_basket(browser):
     assert page.is_disappeared(
         *ProductPageLocators.ADDED_PRODUCT_TITLE
     ), "Wait until message will be deleted, but won't be"
+
+
+# Еще тесты можно создавать в классах, нопосредственно в самих фвайлфх тестов
+@pytest.mark.registration
+class TestUserAddToBasketFromProductPage:
+    @pytest.fixture(scope="function", autouse=True)
+    def setup(self, browser):
+        link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=newYear2019"
+        email = str(time.time()) + "@fakemail.org"
+        password = "123selenium"
+        page = LoginPage(browser, link)
+        page.open()
+        page.register_new_user(email, password)
+        page.should_be_authorized_user()
+
+    # doesn't work correctly
+    def test_user_cant_see_success_message(self, browser):
+        link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=newYear2019"
+        page = ProductPage(browser, link)
+        page.open()
+        assert page.is_not_element_present(
+            *ProductPageLocators.ADDED_PRODUCT_TITLE
+        ), "Success message is presented, but should not be"
+
+    def test_user_can_add_product_to_basket(self, browser):
+        link = "http://selenium1py.pythonanywhere.com/catalogue/coders-at-work_207/?promo=newYear2019"
+        page = ProductPage(browser, link)
+        page.open()
+        page.click_on_add_cart_button()
+        assert False == page.is_disappeared(
+            *ProductPageLocators.ADDED_PRODUCT_TITLE
+        ), "Wait until message will be deleted, but won't be"

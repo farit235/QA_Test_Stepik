@@ -23,3 +23,5 @@ pytest -m registration --browser_name=chrome --language=en test_product_page.py
 ```
 
 P.S. In pytest.ini file you can find markers for tests :)
+
+Here is you can find certificate with honors: https://stepik.org/cert/2445236
